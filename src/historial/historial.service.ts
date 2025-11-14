@@ -34,3 +34,6 @@ export class HistorialService {
     return this.repo.delete(id);
   }
 }
+
+
+

@@ -1,0 +1,30 @@
+### Crear historial
+POST http://localhost:3000/historial
+Content-Type: application/json
+
+{
+  "wiseChat_id": 10,
+  "user_id": 5,
+  "content_message": "Mensaje de prueba",
+  "urgency_level": "alta",
+  "sentiment": "positivo"
+}
+
+### Obtener todos los historiales
+GET http://localhost:3000/historial
+
+### Obtener un historial por ID
+GET http://localhost:3000/historial/1
+
+### Actualizar un historial
+PATCH http://localhost:3000/historial/1
+Content-Type: application/json
+
+{
+  "content_message": "Mensaje actualizado",
+  "urgency_level": "media",
+  "sentiment": "neutral"
+}
+
+### Eliminar un historial
+DELETE http://localhost:3000/historial/1

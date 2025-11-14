@@ -12,3 +12,5 @@ import { HistorialController } from './historial.controller';
 export class HistorialModule {}
 
 
+
+
