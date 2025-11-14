@@ -6,8 +6,11 @@ import { HistorialController } from './historial.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Historial])],
+  
   controllers: [HistorialController],
+
   providers: [HistorialService],
+
 })
 export class HistorialModule {}
 
