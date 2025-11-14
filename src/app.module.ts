@@ -1,16 +1,25 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserModule } from './user/user.module';
-import { HistorialModule } from './historial/historial.module';
-import { WiseChatModule } from './wise-chat/wise-chat.module';
-import { NotificationModule } from './notification/notification.module';
-import { MessageModule } from './message/message.module';
-import { AuthModule } from './auth/auth.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './user/entities/user.entity';
+import { Message } from './message/entities/message.entity';
+import { WiseChat } from './wise-chat/entities/wise-chat.entity';
+import { Historial } from './historial/entities/historial.entity';
+import { Notification } from './notification/entities/notification.entity';
 
 @Module({
-  imports: [UserModule, MessageModule, HistorialModule, WiseChatModule, NotificationModule, MessageModule, AuthModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres', 
+      password: '1234', 
+      database: 'mind_connectIA',
+      entities: [User, Message, WiseChat, Historial, Notification],
+      synchronize: true, 
+      logging: true,
+    }),
+    TypeOrmModule.forFeature([User, Message, WiseChat, Historial, Notification]),
+  ],
 })
 export class AppModule {}
