@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entities/user.entity';
 import { Message } from './message/entities/message.entity';
-import { WiseChat } from './wisechat/entities/wisechat.entity';
+import { WiseChat } from './wise-chat/entities/wise-chat.entity';
 import { Historial } from './historial/entities/historial.entity';
 import { Notification } from './notification/entities/notification.entity';
 
@@ -17,9 +17,9 @@ import { Notification } from './notification/entities/notification.entity';
       database: 'mind_connectIA',
       entities: [User, Message, WiseChat, Historial, Notification],
       synchronize: true, 
-      logging: true, 
+      logging: true,
+    }),
     TypeOrmModule.forFeature([User, Message, WiseChat, Historial, Notification]),
   ],
 })
 export class AppModule {}
-
