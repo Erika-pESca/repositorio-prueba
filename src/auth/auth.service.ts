@@ -90,45 +90,46 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
-        last_login: user.last_login, // opcional
       },
     };
   }
 
-  // -----------------------------------------------------
+  // ------------------------
   // 🔹 ENVIAR CORREO DE RECUPERACIÓN
-  // -----------------------------------------------------
+  // ------------------------
   async forgotPassword(dto: ForgotPasswordDto) {
-    const user = await this.userRepo.findOne({
-      where: { email: dto.email },
-    });
+  const user = await this.userRepo.findOne({
+    where: { email: dto.email },
+  });
 
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+  if (!user) throw new NotFoundException('Usuario no encontrado');
 
-    const token = this.jwtService.sign(
-      { email: user.email },
-      { expiresIn: '30m' },
-    );
+  const token = this.jwtService.sign(
+    { email: user.email },
+    { expiresIn: '30m' },
+  );
 
-    // 🔥 Enlace para frontend o backend temporal
-    const resetLink = http://localhost:3000/auth/reset-password?token=${token};
+  const resetLink = `http://localhost:3000/auth/reset-password?token=${token}`;
 
-    await this.mailerService.sendMail({
-      to: user.email,
-      subject: 'Recuperación de contraseña',
-      template: './reset-password', // nombre del template SIN .hbs
-      context: {
-        name: user.name,
-        resetLink: resetLink,
-      },
-    });
 
-    return { message: 'Correo enviado correctamente' };
-  }
+  await this.mailerService.sendMail({
+    to: user.email,
+    subject: 'Recuperación de contraseña',
+    template: './reset-password', // nombre del template SIN .hbs
+    context: {
+      name: user.name,     // 👈 Debe coincidir con {{name}}
+      resetLink: resetLink // 👈 Debe coincidir con {{resetLink}}
+    },
+  });
 
-  // -----------------------------------------------------
+  return { message: 'Correo enviado correctamente' };
+}
+
+
+
+  // ------------------------
   // 🔹 RESTABLECER CONTRASEÑA
-  // -----------------------------------------------------
+  // ------------------------
   async resetPassword(dto: ResetPasswordDto) {
     try {
       const payload = this.jwtService.verify(dto.token);
