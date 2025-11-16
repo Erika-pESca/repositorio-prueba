@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+  import * as bcrypt from 'bcrypt';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -29,9 +29,9 @@ export class AuthService {
     private readonly mailerService: MailerService,
   ) {}
 
-  // ------------------------
+  // -----------------------------------------------------
   // 🔹 REGISTRAR USUARIO
-  // ------------------------
+  // -----------------------------------------------------
   async register(dto: RegisterDto) {
     const existing = await this.userRepo.findOne({
       where: { email: dto.email },
@@ -58,21 +58,24 @@ export class AuthService {
     };
   }
 
-  // ------------------------
-  // 🔹 LOGIN
-  // ------------------------
+  // -----------------------------------------------------
+  // 🔹 LOGIN (con last_login)
+  // -----------------------------------------------------
   async login(dto: LoginDto) {
     const user = await this.userRepo.findOne({
       where: { email: dto.email },
     });
-    
 
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
     const isValid = await bcrypt.compare(dto.password, user.password);
     if (!isValid) throw new UnauthorizedException('Contraseña incorrecta');
 
-    // IMPORTANTE → Usar sub para que JWT Strategy funcione
+    // 🔥 Actualizar último login
+    user.last_login = new Date();
+    await this.userRepo.save(user);
+
+    // Crear token JWT
     const token = this.jwtService.sign({
       sub: user.id,
       email: user.email,
