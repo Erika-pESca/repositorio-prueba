@@ -5,9 +5,11 @@ import { Message } from './message/entities/message.entity';
 import { WiseChat } from './wise-chat/entities/wise-chat.entity';
 import { Historial } from './historial/entities/historial.entity';
 import { Notification } from './notification/entities/notification.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -20,6 +22,7 @@ import { Notification } from './notification/entities/notification.entity';
       logging: true,
     }),
     TypeOrmModule.forFeature([User, Message, WiseChat, Historial, Notification]),
+    ScheduleModule.forRoot(),
   ],
 })
 export class AppModule {
