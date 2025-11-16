@@ -1,12 +1,7 @@
-/*Ejecuta un cron todos los días
-
-Busca usuarios cuya última actividad sea mayor a 11 meses (para enviar aviso mensual)
-
-Después de 12 meses → los vuelve inactivos*/
 import { Injectable } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { User } from './entities/user.entity';
 import { Notification } from '../notification/entities/notification.entity';
 
@@ -14,17 +9,17 @@ import { Notification } from '../notification/entities/notification.entity';
 export class UserCronService {
   constructor(
     @InjectRepository(User)
-    private userRepo: Repository<User>,
+    private readonly userRepo: Repository<User>,
 
     @InjectRepository(Notification)
-    private notificationRepo: Repository<Notification>,
+    private readonly notificationRepo: Repository<Notification>,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  /* Este método será llamado por el CRON cada mes*/
   async checkInactiveUsers() {
-    const now = new Date();
-
     const users = await this.userRepo.find();
+
+    const now = new Date();
 
     for (const user of users) {
       if (!user.last_login) continue;
@@ -50,10 +45,12 @@ export class UserCronService {
 
         await this.notificationRepo.save({
           user,
-          message: 'Tu cuenta ha sido inactivada por inactividad de 1 año.',
+          message:
+            'Tu cuenta ha sido inactivada por inactividad de 1 año.',
           status: 'unread',
         });
       }
     }
   }
-}
+} 
+

@@ -18,6 +18,12 @@ export class User {
   @Column({ length: 100 })
   name: string;
 
+  @Column({ type: 'timestamp', nullable: true })
+last_login: Date;
+
+@Column({ default: 'active' })
+status: string; // active | inactive
+
   @Column({ unique: true, length: 150 })
   email: string;
 
