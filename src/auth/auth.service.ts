@@ -65,6 +65,7 @@ export class AuthService {
     const user = await this.userRepo.findOne({
       where: { email: dto.email },
     });
+    
 
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
