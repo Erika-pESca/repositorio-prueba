@@ -15,42 +15,35 @@ export class UserCronService {
     private readonly notificationRepo: Repository<Notification>,
   ) {}
 
-  /* Este método será llamado por el CRON cada mes*/
   async checkInactiveUsers() {
     const users = await this.userRepo.find();
-
     const now = new Date();
 
     for (const user of users) {
+
       if (!user.last_login) continue;
 
       const diffMonths =
         (now.getFullYear() - user.last_login.getFullYear()) * 12 +
         (now.getMonth() - user.last_login.getMonth());
 
-      // --- 11 MESES SIN ENTRAR: enviar notificación mensual ---
+      // --- 11 MESES: advertencia ---
       if (diffMonths >= 11 && diffMonths < 12) {
         await this.notificationRepo.save({
           user,
           message:
             'Tu cuenta será inactivada si no ingresas durante el próximo mes.',
-          status: 'unread',
         });
       }
 
-      // --- 12 MESES SIN ENTRAR: inactivar usuario ---
-      if (diffMonths >= 12 && user.status !== 'inactive') {
-        user.status = 'inactive';
-        await this.userRepo.save(user);
-
+      // --- 12 MESES: solo notificación (sin status porque NO existe en User) ---
+      if (diffMonths >= 12) {
         await this.notificationRepo.save({
           user,
-          message:
-            'Tu cuenta ha sido inactivada por inactividad de 1 año.',
-          status: 'unread',
+          message: 'Tu cuenta ha cumplido un año sin actividad.',
         });
       }
     }
   }
-} 
+}
 

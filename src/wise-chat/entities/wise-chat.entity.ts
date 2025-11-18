@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Historial } from '../../historial/entities/historial.entity';
 import { Message } from '../../message/entities/message.entity';
-import { Notification } from '../../notification/entities/notification.entity'; // <-- FALTA ESTA
+import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity()
 export class WiseChat {
@@ -30,12 +30,16 @@ export class WiseChat {
   @CreateDateColumn()
   creation_date: Date;
 
-  @ManyToOne(() => Historial, (historial) => historial.wiseChats, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Historial, (historial) => historial.wiseChats, {
+    onDelete: 'CASCADE',
+  })
   historial: Historial;
 
   @OneToMany(() => Message, (message) => message.wiseChat, { cascade: true })
   messages: Message[];
 
-  @OneToMany(() => Notification, (notification) => notification.wiseChat, { cascade: true })
+  @OneToMany(() => Notification, (notification) => notification.wiseChat, {
+    cascade: true,
+  })
   notifications: Notification[];
 }

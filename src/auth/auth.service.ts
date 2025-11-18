@@ -3,9 +3,10 @@ import {
   NotFoundException,
   UnauthorizedException,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-  import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,7 +31,7 @@ export class AuthService {
   ) {}
 
   // -----------------------------------------------------
-  // 🔹 REGISTRAR USUARIO
+  // 🔹 REGISTRAR USUARIO (Con roles)
   // -----------------------------------------------------
   async register(dto: RegisterDto) {
     const existing = await this.userRepo.findOne({
@@ -43,23 +44,33 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
+    // 🔥 Validar roles permitidos
+    const allowedRoles = ['admin', 'moderador', 'user'];
+    if (dto.role && !allowedRoles.includes(dto.role)) {
+      throw new ForbiddenException('Rol inválido');
+    }
+
     const newUser = this.userRepo.create({
       name: dto.name,
       email: dto.email,
       password: hashedPassword,
-      role: dto.role || 'user', // admin | moderador | user
+      role: dto.role || 'user', // default = user
     });
 
     await this.userRepo.save(newUser);
 
     return {
       message: 'Usuario registrado exitosamente',
-      user: { id: newUser.id, email: newUser.email, role: newUser.role },
+      user: { 
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role
+      },
     };
   }
 
   // -----------------------------------------------------
-  // 🔹 LOGIN (con last_login)
+  // 🔹 LOGIN (con last_login y rol)
   // -----------------------------------------------------
   async login(dto: LoginDto) {
     const user = await this.userRepo.findOne({
@@ -75,11 +86,11 @@ export class AuthService {
     user.last_login = new Date();
     await this.userRepo.save(user);
 
-    // Crear token JWT
+    // Crear token JWT con rol
     const token = this.jwtService.sign({
       sub: user.id,
       email: user.email,
-      role: user.role,
+      role: user.role, // 👈 SE AGREGA AQUÍ
     });
 
     return {
@@ -89,8 +100,8 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
-        last_login: user.last_login, // opcional
+        role: user.role, // 👈 SE AGREGA AQUÍ
+        last_login: user.last_login,
       },
     };
   }
@@ -110,18 +121,20 @@ export class AuthService {
       { expiresIn: '30m' },
     );
 
-    /* 🔥 Enlace para frontend o backend temporal
-    const resetLink = http://localhost:3000/auth/reset-password?token=${token};
+    /*
+    🔥 Enviar correo (opcional)
+    const resetLink = `http://localhost:3000/auth/reset-password?token=${token}`;
 
     await this.mailerService.sendMail({
       to: user.email,
       subject: 'Recuperación de contraseña',
-      template: './reset-password', // nombre del template SIN .hbs
+      template: './reset-password',
       context: {
         name: user.name,
-        resetLink: resetLink,
+        resetLink,
       },
-    });*/
+    });
+    */
 
     return { message: 'Correo enviado correctamente' };
   }

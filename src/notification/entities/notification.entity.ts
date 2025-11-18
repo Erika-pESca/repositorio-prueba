@@ -14,12 +14,13 @@ export class Notification {
   id: number;
 
   @ManyToOne(() => WiseChat, (wiseChat) => wiseChat.notifications, {
-  onDelete: 'CASCADE',
-})
-wiseChat: WiseChat;
+    onDelete: 'CASCADE',
+  })
+  wiseChat: WiseChat;
 
-
-  @ManyToOne(() => User, (user) => user.notifications, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.notifications, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 
   @Column({ type: 'text' })
