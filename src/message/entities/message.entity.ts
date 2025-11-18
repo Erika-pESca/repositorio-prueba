@@ -16,17 +16,20 @@ export class Message {
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ default: 'sent' }) // ej. 'sent', 'delivered', 'read'
+  @Column({ default: 'sent' })
   status: string;
 
   @CreateDateColumn()
   creation_date: Date;
 
-  // Relación con el chat
-  @ManyToOne(() => WiseChat, (wiseChat) => wiseChat.messages, { onDelete: 'CASCADE' })
+  @ManyToOne(() => WiseChat, (wiseChat) => wiseChat.messages, {
+    onDelete: 'CASCADE',
+  })
   wiseChat: WiseChat;
 
-  // Relación con el usuario que envió el mensaje
-  @ManyToOne(() => User, (user) => user.messages, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne(() => User, (user) => user.messages, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
   user: User | null;
 }
